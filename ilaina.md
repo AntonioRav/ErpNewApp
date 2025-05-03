@@ -88,3 +88,11 @@ Exemple :
 
 
 liste des api: https://frappeframework.com/docs/v14/user/en/api/rest
+
+caster String en util.date:
+
+```java
+        String dateString = "2023-06-05";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse(dateString);
+```

@@ -23,6 +23,8 @@ import com.eval.newApp.model.Item;
 import java.util.Map;
 import java.util.HashMap;
 import com.eval.newApp.model.Commande;
+import java.util.Date;
+import com.eval.newApp.model.Facture;
 
 @Controller
 public class FournisseurController {
@@ -86,5 +88,13 @@ public class FournisseurController {
         model.addAttribute("commandes", commandes);
         model.addAttribute("status", status);
         return "liste_commandes";
+    }
+
+    @GetMapping("/factures")
+    public String listFactures(Model model) {
+        List<Facture> factures = fournisseurService.getFactures();
+        model.addAttribute("factures",factures);
+
+        return "liste_factures";
     }
 }
