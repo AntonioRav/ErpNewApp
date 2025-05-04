@@ -56,6 +56,7 @@
 </head>
 <body>
     <div class="error-container">
+        <div th:replace="fragments/navbar :: navbar"></div>
         <h1 class="error-title">Error</h1>
         <div class="error-message">
             <p th:text="${error}" th:if="${error}">An error occurred</p>

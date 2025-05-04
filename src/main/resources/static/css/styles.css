@@ -85,6 +85,7 @@ h2 {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    background-color: cornflowerblue;
 }
 
 .data-table th {
@@ -110,6 +111,16 @@ h2 {
 
 .data-table tr:hover td {
     background-color: #f8fafc;
+}
+
+.data-table tfoot {
+    background-color: var(--background-color);
+    font-weight: 500;
+}
+
+.data-table tfoot td {
+    padding: 1rem;
+    border-top: 2px solid var(--border-color);
 }
 
 /* Boutons */
@@ -361,4 +372,26 @@ h2 {
     h2 {
         font-size: 1.5rem;
     }
+}
+
+/* Ajout des styles pour la grille */
+.grid {
+    display: grid;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+/* Ajout des styles pour le tableau */
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
 }

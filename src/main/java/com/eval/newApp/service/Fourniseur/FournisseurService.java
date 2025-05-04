@@ -258,32 +258,5 @@ public class FournisseurService {
         return commandeList;
     }    
 
-    public List<Facture> getFactures()
-    {
-        String url = "http://127.0.0.1:8000/api/resource/Purchase Invoice?fields=[\"name\",\"supplier_name\",\"posting_date\",\"status\",\"outstanding_amount\"]";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie",loginService.getSessionCookie());
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Map> response = restTemplate.exchange(url,HttpMethod.GET,entity,Map.class);
-
-        List<Facture> factureList = new ArrayList<>();
-        List<Map<String, Object>>data= (List<Map<String, Object>>) response.getBody().get("data");
-
-        for (Map<String, Object> factureData : data) {
-            Facture facture = new Facture();
-            facture.setName((String) factureData.get("name"));
-            facture.setSupplier_name((String) factureData.get("supplier_name"));
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                facture.setPosting_date(sdf.parse((String) factureData.get("posting_date")));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            facture.setStatus((String) factureData.get("status"));
-            facture.setOutstanding_amount((Double) factureData.get("outstanding_amount"));
-            factureList.add(facture);
-        }
-        return factureList;   
-    }
 }

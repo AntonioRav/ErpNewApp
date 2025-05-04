@@ -90,11 +90,5 @@ public class FournisseurController {
         return "liste_commandes";
     }
 
-    @GetMapping("/factures")
-    public String listFactures(Model model) {
-        List<Facture> factures = fournisseurService.getFactures();
-        model.addAttribute("factures",factures);
 
-        return "liste_factures";
-    }
 }
