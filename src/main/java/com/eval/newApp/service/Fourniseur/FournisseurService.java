@@ -174,43 +174,50 @@ public class FournisseurService {
     public void modifierPrixItem(String devisId, String itemCode, double newRate) {
         try {
             String url = "http://127.0.0.1:8000/api/resource/Supplier Quotation/" + devisId;
-            
-            // Récupérer d'abord le devis actuel
+    
             HttpHeaders headers = new HttpHeaders();
             headers.set("Cookie", loginService.getSessionCookie());
             headers.setContentType(MediaType.APPLICATION_JSON);
-            
+    
+            // 1. Récupérer le devis
             HttpEntity<String> getEntity = new HttpEntity<>(headers);
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, getEntity, Map.class);
-            
+    
             if (response.getBody() != null && response.getBody().get("data") != null) {
                 Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
                 List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
-                
-                // Mettre à jour le prix de l'item spécifique
+    
                 for (Map<String, Object> item : items) {
                     if (item.get("item_code").equals(itemCode)) {
                         item.put("rate", newRate);
-                        // Recalculer le montant
                         double qty = ((Number) item.get("qty")).doubleValue();
                         item.put("amount", qty * newRate);
                         break;
                     }
                 }
-                
-                // Préparer la requête PUT
+    
+                // 2. Mettre à jour les items
                 Map<String, Object> updateData = new HashMap<>();
                 updateData.put("items", items);
-                
+    
                 HttpEntity<Map<String, Object>> putEntity = new HttpEntity<>(updateData, headers);
                 restTemplate.exchange(url, HttpMethod.PUT, putEntity, Map.class);
+    
+                // 3. Soumettre le devis (docstatus = 1)
+                Map<String, Object> submitPayload = new HashMap<>();
+                submitPayload.put("docstatus", 1);
+    
+                HttpEntity<Map<String, Object>> submitEntity = new HttpEntity<>(submitPayload, headers);
+                restTemplate.exchange(url, HttpMethod.PUT, submitEntity, Map.class);
             }
+    
         } catch (Exception e) {
             System.err.println("Erreur lors de la modification du prix: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Erreur lors de la modification du prix", e);
         }
     }
+    
 
     public List<Commande> getCommandesParFournisseur(String fournisseurNom) 
     {
@@ -257,6 +264,38 @@ public class FournisseurService {
         }
         return commandeList;
     }    
+
+        public void modifierStatusDevis(String name)
+        {
+            String url = "http://127.0.0.1:8000/api/resource/Supplier Quotation/" + name;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Cookie",loginService.getSessionCookie());
+            // Corps de la requête (JSON)
+            String requestBody = "{\"docstatus\": 1}";
+
+            // Construire la requête HTTP avec corps + headers
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+            try {
+                ResponseEntity<String> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class
+                );
+
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Document soumis avec succès !");
+                } else {
+                    System.out.println("Erreur: " + response.getStatusCode());
+                    System.out.println("Réponse: " + response.getBody());
+                }
+
+            } catch (Exception e) {
+                throw new RuntimeException("Erreur lors de l'appel à ERP : " + e.getMessage(),e);
+        }        
+    }
 
 
 }

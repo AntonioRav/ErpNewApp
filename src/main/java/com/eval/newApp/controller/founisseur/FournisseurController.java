@@ -1,4 +1,4 @@
-package com.eval.newApp.service.Fourniseur;
+package com.eval.newApp.controller.founisseur;
 
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;

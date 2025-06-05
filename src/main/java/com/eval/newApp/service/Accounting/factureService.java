@@ -1,8 +1,5 @@
 package com.eval.newApp.service.Accounting;
 
-import com.eval.newApp.model.Fournisseur;
-import com.eval.newApp.model.FournisseurResponse;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.eval.newApp.service.Login.LoginService;

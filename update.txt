@@ -1,0 +1,27 @@
+String url = ERP_BASE_URL + "resource/Supplier Quotation/" + name;
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Corps de la requête (JSON)
+        String requestBody = "{\"docstatus\": 1}";
+
+        // Construire la requête HTTP avec corps + headers
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    entity,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Document soumis avec succès !");
+            } else {
+                System.out.println("Erreur: " + response.getStatusCode());
+                System.out.println("Réponse: " + response.getBody());
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'appel à ERP : " + e.getMessage(), e);
+        }
