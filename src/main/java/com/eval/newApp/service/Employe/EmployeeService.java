@@ -2,6 +2,8 @@ package com.eval.newApp.service.Employe;
 
 import com.eval.newApp.model.Fournisseur;
 import com.eval.newApp.model.FournisseurResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 import com.eval.newApp.model.Devis;
 import java.util.List;
 import com.eval.newApp.model.Item;
+import com.eval.newApp.repository.EmployeeRepository;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -28,13 +32,19 @@ import com.eval.newApp.model.Employee;
 public class EmployeeService{
     private final RestTemplate restTemplate = new RestTemplate();
     private final LoginService loginService;
+    @Autowired
+    EmployeeRepository employeeRepository;
 
     public EmployeeService(LoginService loginService){
         this.loginService = loginService;
     }
 
+    public List<Employee> getByCompany(String company){
+        return employeeRepository.findByCompany(company);
+    }
+
     public List<Employee> getEmployees(){
-        String url = "http://127.0.0.1:8000/api/resource/Employee";
+        String url = "http://127.0.0.1:8000/api/resource/Employee?&limit_page_length=1000";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", loginService.getSessionCookie()); // Utilise le cookie stocké
@@ -87,6 +97,8 @@ public class EmployeeService{
             employee.setDate_of_birth((String) employeeData.get("date_of_birth"));
             employee.setDate_of_joining((String) employeeData.get("date_of_joining"));
             employee.setStatus((String) employeeData.get("status"));
+            employee.setCompany((String) employeeData.get("company"));
+
             return employee;
         } else {
             throw new RuntimeException("Erreur appel fournisseur : " + response.getStatusCode());

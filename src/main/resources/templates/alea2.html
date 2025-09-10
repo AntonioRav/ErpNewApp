@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modif Salaires</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <div th:replace="fragments/navbar :: navbar"></div>
+        <div class="welcome-section">
+            <h1>
+                <i class="fas fa-file-invoice"></i>
+                Liste des Factures
+            </h1>
+        </div>
+
+        <div class="card mb-8">
+            <form th:action="@{/filtreSalaire}" method="post">
+                salary salaryComponent:
+                <select name="salaryComponent" id="">
+                    <option th:each="salaryComponent : ${salaryComponents}"
+                            th:value="${salaryComponent.name}"
+                            th:text="${salaryComponent.name}"
+                    ></option>
+                </select>
+                Signe
+                <select name="signe" id="">
+                    <option value=">">></option>
+                    <option value="<"><</option>
+                    <option value="=">=</option>
+                </select>
+                salaire:<input type="number" name="salaire">
+                <input type="submit">
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Employé</th>
+                    <th>Date de début</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="e : ${emp}">
+                    <td th:text="${e['employee']}">Nom employé</td>
+                    <td th:text="${e['start_date']}">Date début</td>
+                    
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="flex justify-between items-center">
+            <a href="/fournisseurs" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Retour aux fournisseurs
+            </a>
+
+        </div>
+    </div>
+</body>
+</html>

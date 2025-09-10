@@ -9,6 +9,27 @@ public class SalarySlip {
     String posting_date;
     String salary_structure;
     Double net_pay;
+    Double gross_pay;
+    Double total_deduction;
+    String start_date;
+    String end_date;
+
+    public SalarySlip(String name, String employee_name, String employee, String status, String company,
+            String posting_date, String salary_structure, Double net_pay, Double gross_pay, Double total_deduction,
+            String start_date, String end_date) {
+        this.name = name;
+        this.employee_name = employee_name;
+        this.employee = employee;
+        this.status = status;
+        this.company = company;
+        this.posting_date = posting_date;
+        this.salary_structure = salary_structure;
+        this.net_pay = net_pay;
+        this.gross_pay = gross_pay;
+        this.total_deduction = total_deduction;
+        this.start_date = start_date;
+        this.end_date = end_date;
+    }
 
     public SalarySlip(){
 
@@ -87,5 +108,37 @@ public class SalarySlip {
 
     public void setNet_pay(Double net_pay) {
         this.net_pay = net_pay;
+    }
+
+    public Double getGross_pay() {
+        return gross_pay;
+    }
+
+    public void setGross_pay(Double gross_pay) {
+        this.gross_pay = gross_pay;
+    }
+
+    public Double getTotal_deduction() {
+        return total_deduction;
+    }
+
+    public void setTotal_deduction(Double total_deduction) {
+        this.total_deduction = total_deduction;
+    }
+
+    public String getStart_date() {
+        return start_date;
+    }
+
+    public void setStart_date(String start_date) {
+        this.start_date = start_date;
+    }
+
+    public String getEnd_date() {
+        return end_date;
+    }
+
+    public void setEnd_date(String end_date) {
+        this.end_date = end_date;
     }
 }

@@ -3,13 +3,14 @@ package com.eval.newApp.controller.Employee;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.ui.Model;
-import java.util.List;
+
 import java.util.*;
 
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import com.eval.newApp.model.*;
-import com.eval.newApp.service.Employe.SalarySlipService;
+import com.eval.newApp.service.Employe.*;
+
 
 @Controller
 public class SalarySlipController {
@@ -60,6 +61,29 @@ public class SalarySlipController {
         model.addAttribute("salaryRegister", result);
         return "salaryRegister";
     }
+
+    @GetMapping("/getTotauxMensuels")
+    public String getTotauxMensuels(@RequestParam(defaultValue = "2025") int annee,@RequestParam(required = false) String moisFiltre,Model model) 
+    {
+        Map<String, TotauxMensuels> result = salarySlipService.getTotalSalaireParMois(annee, moisFiltre);
+        model.addAttribute("totalSalaire", result);
+        return "statistiques";
+    }
+
+    @GetMapping("/graph")
+    public String getSalaryRegisterData(Model model) {
+        List<Map<String, Object>> result = salarySlipService.getSalaryRegister();
+        model.addAttribute("salaryRegister", result);
+        return "graph";
+    }
+    
+    @GetMapping("/total")
+    public String total(Model model) {
+        List<Map<String, Object>> result = salarySlipService.getSalaryRegister();
+        model.addAttribute("salaryRegister", result);
+        return "total";
+    }
+
 
 
 }    

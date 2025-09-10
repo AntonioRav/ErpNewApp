@@ -4,16 +4,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.eval.newApp.service.Login.LoginService;
-import com.eval.newApp.model.SalarySlip;
 import com.eval.newApp.model.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.text.ParseException;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -27,9 +28,13 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
@@ -46,13 +51,14 @@ import org.springframework.http.ResponseEntity;
 public class SalarySlipService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final LoginService loginService;
+    private EmployeeService employeeService;
 
     public SalarySlipService(LoginService loginService){
         this.loginService = loginService;
     }
 
     public List<SalarySlip> getSalarySlipByEmployee(String employee){
-        String url = "http://127.0.0.1:8000/api/resource/Salary Slip?filters=[[\"employee\", \"=\", \"" + employee + "\"]]";
+        String url = "http://127.0.0.1:8000/api/resource/Salary Slip?filters=[[\"employee\", \"=\", \"" + employee + "\"]]&limit_page_length=1000";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", loginService.getSessionCookie()); // Utilise le cookie stocké
@@ -96,59 +102,102 @@ public class SalarySlipService {
         salarySlip.setPosting_date((String) data.get("posting_date"));
         salarySlip.setSalary_structure((String) data.get("salary_structure"));
         salarySlip.setNet_pay((Double) data.get("net_pay"));
+        salarySlip.setGross_pay((Double) data.get("gross_pay"));
+        salarySlip.setTotal_deduction((Double) data.get("total_deduction"));
+        salarySlip.setStart_date((String)data.get("start_date"));
+        salarySlip.setEnd_date((String)data.get("end_date"));
+
         return salarySlip;
         
     }
 
-    public byte[] exporterPdf(String salarySlipId){
-        try{
-            SalarySlip detailSalarySlip=getDetailSalarySlip(salarySlipId);
-            ByteArrayOutputStream b= new ByteArrayOutputStream();            
-            PdfWriter writer = new PdfWriter(b);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document=new Document(pdfDoc,PageSize.A4);
+public byte[] exporterPdf(String salarySlipId) {
+    try {
+        SalarySlip detailSalarySlip = getDetailSalarySlip(salarySlipId);
+        ByteArrayOutputStream b = new ByteArrayOutputStream();            
+        PdfWriter writer = new PdfWriter(b);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc, PageSize.A4);
+        document.setMargins(20, 20, 20, 20);
 
-            document.add(new Paragraph("FICHE DE PAIE")
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(24)
-                .setBold());
-            
-            document.add(new Paragraph("\n"));
-            
-            document.add(new Paragraph(" Company: "+detailSalarySlip.getCompany())
-                .setTextAlignment(TextAlignment.LEFT)
-                .setFontSize(18)
-                .setBold());
+        // Titre principal
+        document.add(new Paragraph("FICHE DE PAIE")
+            .setTextAlignment(TextAlignment.CENTER)
+            .setFontSize(24)
+            .setBold());
 
-            document.add(new Paragraph("Fiche de paie N° : " + detailSalarySlip.getName())
-                .setFontSize(12));
-            document.add(new Paragraph("Date : " + detailSalarySlip.getPosting_date())
-                .setFontSize(12));    
-            document.add(new Paragraph("Employé N°: " + detailSalarySlip.getEmployee())
-                .setFontSize(12));        
-            document.add(new Paragraph("Nom : " + detailSalarySlip.getEmployee_name())
-                .setFontSize(12));   
-            document.add(new Paragraph("Structure de salaire : " + detailSalarySlip.getSalary_structure())
-                .setFontSize(12));   
-            document.add(new Paragraph("Paiment Brut : " + detailSalarySlip.getNet_pay())
-                .setFontSize(12));   
-                
-            document.add(new Paragraph("\n\n"));
-            document.add(new Paragraph("Merci pour votre confiance!")
+        document.add(new Paragraph("\n"));
+
+        // Sous-titre - Société
+        document.add(new Paragraph("Société : " + detailSalarySlip.getCompany())
+            .setTextAlignment(TextAlignment.LEFT)
+            .setFontSize(14)
+            .setBold());
+
+        document.add(new Paragraph("\n"));
+
+        // Tableau de données personnelles
+        float[] colWidths1 = {200f, 300f};
+        Table table1 = new Table(colWidths1);
+        table1.setWidth(UnitValue.createPercentValue(100));
+
+        table1.addCell(new Cell().add(new Paragraph("Fiche de paie N°").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getName())));
+
+        table1.addCell(new Cell().add(new Paragraph("Date").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getPosting_date())));
+
+        table1.addCell(new Cell().add(new Paragraph("Employé N°").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getEmployee())));
+
+        table1.addCell(new Cell().add(new Paragraph("Nom").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getEmployee_name())));
+
+        table1.addCell(new Cell().add(new Paragraph("Structure de salaire").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getSalary_structure())));
+
+        table1.addCell(new Cell().add(new Paragraph("Date Début").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getStart_date())));
+
+        table1.addCell(new Cell().add(new Paragraph("Date Fin").setBold()));
+        table1.addCell(new Cell().add(new Paragraph(detailSalarySlip.getEnd_date())));
+
+        document.add(table1);
+        document.add(new Paragraph("\n"));
+
+        // Tableau des montants
+        float[] colWidths2 = {250f, 250f};
+        Table table2 = new Table(colWidths2);
+        table2.setWidth(UnitValue.createPercentValue(100));
+
+        table2.addCell(new Cell().add(new Paragraph("Salaire brut").setBold()));
+        table2.addCell(new Cell().add(new Paragraph(String.format("%.2f", detailSalarySlip.getGross_pay()) + " Ar")));
+
+        table2.addCell(new Cell().add(new Paragraph("Déductions").setBold()));
+        table2.addCell(new Cell().add(new Paragraph(String.format("%.2f", detailSalarySlip.getTotal_deduction()) + " Ar")));
+
+        table2.addCell(new Cell().add(new Paragraph("Salaire net à payer").setBold()));
+        table2.addCell(new Cell().add(new Paragraph(String.format("%.2f", detailSalarySlip.getNet_pay()) + " Ar")));
+
+        document.add(table2);
+
+        document.add(new Paragraph("\n\n"));
+
+        // Message de fin
+        document.add(new Paragraph("Merci pour votre confiance !")
             .setTextAlignment(TextAlignment.CENTER)
             .setFontSize(12)
             .setItalic());
 
-            document.close();
-            return b.toByteArray();
+        document.close();
+        return b.toByteArray();
 
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la generation du pdf : "+e.getMessage());
-        }
-
-
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException("Erreur lors de la génération du PDF : " + e.getMessage());
     }
+}
+
 
     public List<Map<String, Object>> getSalaryRegister() {
         String url = "http://127.0.0.1:8000/api/method/frappe.desk.query_report.run";
@@ -157,7 +206,7 @@ public class SalarySlipService {
         Map<String, Object> body = new HashMap<>();
         body.put("report_name", "Salary Register");
     
-        // En-têtes HTTP avec cookie de session
+        // En-têtes HTTP avec cookie de sessionR
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cookie", loginService.getSessionCookie());
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -270,6 +319,68 @@ public class SalarySlipService {
     
         return result;
     }
+
+
+    public Map<String, TotauxMensuels> getTotalSalaireParMois(int annee,String moisFiltre) {
+        String url = "http://127.0.0.1:8000/api/resource/Salary Slip";
+
+        String fromDate = annee + "-01-01";
+        String toDate = annee + "-12-31";
+
+        String filters = "[[\"start_date\",\">=\",\"" + fromDate + "\"],[\"start_date\",\"<=\",\"" + toDate + "\"]]";
+        String fields = "[\"gross_pay\",\"total_deduction\",\"net_pay\",\"start_date\"]";
+
+        String fullUrl = url + "?filters=" + filters + "&fields=" + fields + "&limit_page_length=1000";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Cookie", loginService.getSessionCookie()); // ou Authorization
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(fullUrl, HttpMethod.GET, entity, Map.class);
+
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) response.getBody().get("data");
+
+        Map<String, TotauxMensuels> result = new TreeMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
+        for (Map<String, Object> row : rows) {
+            String startDate = (String) row.get("start_date");
+            LocalDate date = LocalDate.parse(startDate, formatter);
+        
+            String mois = String.format("%02d-%d", date.getMonthValue(), date.getYear()); // ex: 12-2025
+        
+            Double gross = toDouble(row.get("gross_pay"));
+            Double deduction = toDouble(row.get("total_deduction"));
+            Double net = toDouble(row.get("net_pay"));
+        
+            if (moisFiltre == null || moisFiltre.isEmpty()) {
+                TotauxMensuels totaux = result.computeIfAbsent(mois, k -> new TotauxMensuels());
+                totaux.ajouter(gross, deduction, net);
+                totaux.setMoisNum(String.valueOf(date.getMonthValue()));
+                totaux.setAnneeNum(String.valueOf(date.getYear()));
+            } else {
+                if (moisFiltre.trim().equals(String.valueOf(date.getMonthValue()))) {
+                    TotauxMensuels totaux = result.computeIfAbsent(mois, k -> new TotauxMensuels());
+                    totaux.ajouter(gross, deduction, net);
+                    totaux.setMoisNum(String.valueOf(date.getMonthValue()));
+                    totaux.setAnneeNum(String.valueOf(date.getYear()));
+                }
+            }
+        }
+        
+
+        return result;
+    }
+
+    private Double toDouble(Object obj) {
+        if (obj instanceof Number) return ((Number) obj).doubleValue();
+        try { return Double.parseDouble(obj.toString()); }
+        catch (Exception e) { return 0.0; }
+    }
+
+
+    
     
 
 }

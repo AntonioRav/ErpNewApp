@@ -49,47 +49,39 @@
             </div>
 
             <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Identifiant</th>
-                            <th>Nom</th>
-                            <th>Genre</th>
-                            <th>Date de naissance</th>
-                            <th>Date d'arrivée</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="employee : ${employees}">
-                            <td>
-                                <div class="flex items-center gap-4">
-                                    <i class="fas fa-user text-secondary"></i>
-                                    <span th:text="${employee.name}">Nom</span>
-                                </div>
-                            </td>
-                            <td>
-                                <span th:text="${employee.employee_name}">Nom</span>
-                            </td>
-                            <td>
-                                <span th:text="${employee.gender}">Genre</span>
-                            </td>
-                            <td>
-                                <span th:text="${employee.date_of_birth}">Date de naissance</span>
-                            </td>
-                            <td>
-                                <span th:text="${employee.date_of_joining}">Date d'arrivée</span>
-                            </td>
-                            <td>
-                                <span th:text="${employee.status}">Statut</span>
-                            </td>
-                            <td>
-                                <a th:href="@{/salarySlipByEmployee/{employee}(employee=${employee.name})}">voir details</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-y-auto max-h-96 border rounded">
+                    <table class="data-table w-full">
+                        <thead class="bg-gray-200 sticky top-0">
+                            <tr>
+                                <th>Identifiant</th>
+                                <th>Nom</th>
+                                <th>Genre</th>
+                                <th>Date de naissance</th>
+                                <th>Date d'arrivée</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="employee : ${employees}" class="hover:bg-gray-100">
+                                <td>
+                                    <div class="flex items-center gap-4">
+                                        <i class="fas fa-user text-secondary"></i>
+                                        <span th:text="${employee.name}">Nom</span>
+                                    </div>
+                                </td>
+                                <td><span th:text="${employee.employee_name}">Nom</span></td>
+                                <td><span th:text="${employee.gender}">Genre</span></td>
+                                <td><span th:text="${employee.date_of_birth}">Date de naissance</span></td>
+                                <td><span th:text="${employee.date_of_joining}">Date d'arrivée</span></td>
+                                <td><span th:text="${employee.status}">Statut</span></td>
+                                <td>
+                                    <a th:href="@{/salarySlipByEmployee/{employee}(employee=${employee.name})}">voir détails</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

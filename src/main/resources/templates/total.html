@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Statistiques - ERPNext</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Ton contenu ici -->
+    <div class="container">
+        <div th:replace="fragments/navbar :: navbar"></div>
+        <div class="container my-4">
+            <h3>Total des salaires</h3>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="monthFilter" class="form-label">Filtrer par mois :</label>
+                    <select id="monthFilter" class="form-select">
+                        <option value="">Tous les mois</option>
+                        <option value="01">Janvier</option>
+                        <option value="02">Février</option>
+                        <option value="03">Mars</option>
+                        <option value="04">Avril</option>
+                        <option value="05">Mai</option>
+                        <option value="06">Juin</option>
+                        <option value="07">Juillet</option>
+                        <option value="08">Août</option>
+                        <option value="09">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="yearFilter" class="form-label">Filtrer par année :</label>
+                    <select id="yearFilter" class="form-select">
+                        <option value="">Toutes les années</option>
+                        <!-- Options ajoutées dynamiquement par JS -->
+                    </select>
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button id="applyFilterBtn" class="btn btn-primary w-100">Appliquer</button>
+                </div>
+            </div>
+            
+            <canvas id="salaryLineChart"></canvas>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped mt-3">
+                <thead class="table-dark">
+                    <tr id="salary-table-header">
+                        <th>Mois</th>
+                        <!-- Les colonnes des totaux seront injectées ici dynamiquement -->
+                    </tr>
+                </thead>
+                <tbody id="salary-table-body">
+                    <!-- Les lignes de données seront injectées ici -->
+                </tbody>
+            </table>
+        </div>
+    </div>    
+    <!-- Injection des données Thymeleaf dans une variable JS -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const salaryData = [[${salaryRegister}]];
+        console.log("salaryData =", salaryData);
+        /*]]>*/
+    </script>
+
+    <!-- Librairie Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Ton script de graphique -->
+    <script th:src="@{/js/total.js}"></script>
+</body>
+</html>

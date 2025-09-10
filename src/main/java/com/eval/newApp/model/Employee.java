@@ -1,12 +1,41 @@
 package com.eval.newApp.model;
 
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.*;
+
+
+@Entity
+@Table(name = "tabEmployee")
 public class Employee{
+    @Id
     String name;
+
+    @Column(name = "employee_name")
     String employee_name;
+
+    @Column(name="gender")
     String gender;
+
+    @Column(name="date_of_birth")
     String date_of_birth;
+
+    @Column(name="date_of_joining")
     String date_of_joining;
+
+    @Column(name="status")
     String status;
+
+    @Column(name="company")
+    String company;
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
 
     public Employee() {
     }
